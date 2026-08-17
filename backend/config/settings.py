@@ -6,11 +6,12 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # ---------------------------------------------------------------------------
-# Core / security
+# Core / Security
 # ---------------------------------------------------------------------------
 
 SECRET_KEY = os.environ.get(
@@ -18,7 +19,13 @@ SECRET_KEY = os.environ.get(
     "django-insecure-f1%h088r!m*2t@w#55q0-66!9xdcjy8w*h#qq+v#+(52!)e^l#",
 )
 
+# DEBUG should be False in production.
 DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
+
+
+# ---------------------------------------------------------------------------
+# Allowed Hosts
+# ---------------------------------------------------------------------------
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -28,6 +35,14 @@ ALLOWED_HOSTS = [
     ).split(",")
     if host.strip()
 ]
+
+# Render automatically provides RENDER_EXTERNAL_HOSTNAME.
+# Example:
+# movie-watchlist-api-m79o.onrender.com
+render_hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+
+if render_hostname:
+    ALLOWED_HOSTS.append(render_hostname)
 
 
 # ---------------------------------------------------------------------------
@@ -42,14 +57,20 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    # Third-party
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
 
+    # Local apps
     "accounts",
     "watchlist",
 ]
 
+
+# ---------------------------------------------------------------------------
+# Middleware
+# ---------------------------------------------------------------------------
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -64,8 +85,18 @@ MIDDLEWARE = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# URLs / WSGI
+# ---------------------------------------------------------------------------
+
 ROOT_URLCONF = "config.urls"
 
+WSGI_APPLICATION = "config.wsgi.application"
+
+
+# ---------------------------------------------------------------------------
+# Templates
+# ---------------------------------------------------------------------------
 
 TEMPLATES = [
     {
@@ -83,9 +114,6 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = "config.wsgi.application"
-
-
 # ---------------------------------------------------------------------------
 # Database
 # ---------------------------------------------------------------------------
@@ -99,21 +127,33 @@ DATABASES = {
 
 
 # ---------------------------------------------------------------------------
-# Password validation
+# Password Validation
 # ---------------------------------------------------------------------------
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        )
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "MinimumLengthValidator"
+        )
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "CommonPasswordValidator"
+        )
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "NumericPasswordValidator"
+        )
     },
 ]
 
@@ -123,13 +163,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # ---------------------------------------------------------------------------
 
 LANGUAGE_CODE = "en-us"
+
 TIME_ZONE = "UTC"
+
 USE_I18N = True
+
 USE_TZ = True
 
 
 # ---------------------------------------------------------------------------
-# Static files
+# Static Files
 # ---------------------------------------------------------------------------
 
 STATIC_URL = "static/"
@@ -145,7 +188,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 # ---------------------------------------------------------------------------
-# Django REST Framework + JWT auth
+# Django REST Framework
 # ---------------------------------------------------------------------------
 
 REST_FRAMEWORK = {
@@ -157,6 +200,10 @@ REST_FRAMEWORK = {
     ),
 }
 
+
+# ---------------------------------------------------------------------------
+# JWT Authentication
+# ---------------------------------------------------------------------------
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
